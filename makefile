@@ -1,2 +1,2 @@
 s: 
-	go run src/httpd/main.go 
+	go run src/main.go 
