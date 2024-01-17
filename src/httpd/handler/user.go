@@ -118,11 +118,18 @@ func RequestSessionToken(db *db.DB, TM *security.TokenMap) gin.HandlerFunc {
 			return
 		}
 
+<<<<<<< Updated upstream
 		//!JUST FOR TESTING
 		c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
 		c.Header("Access-Control-Allow-Credentials", "true")
 
 		c.SetCookie("token", token, 3600, "/", "", false, false)
+=======
+		c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
+		c.Header("Access-Control-Allow-Credentials", "true")
+
+		c.SetCookie("token", token, 3600, "/", "", false, true)
+>>>>>>> Stashed changes
 
 		c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 
