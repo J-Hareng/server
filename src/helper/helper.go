@@ -19,3 +19,7 @@ func GetEnvVar(key string) string {
 func CustomError(err string) {
 	panic("!!!--------------!!!\nCUSTOM ERROR" + err + " .\n!!!--------------!!!")
 }
+
+type Status struct {
+	STATUS string
+}

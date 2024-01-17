@@ -70,8 +70,7 @@ func (db *DB) GetUser(email string) (models.User, error) {
 	return users[0], nil
 }
 
-//get all user
-
+// get all user
 func (db *DB) GetAllUsers() ([]models.User, error) {
 	usercoll := db.User
 

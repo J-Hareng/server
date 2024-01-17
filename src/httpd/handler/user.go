@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	email "server/src/api/Email"
 	"server/src/api/db"
 	"server/src/helper"
 	"server/src/httpd/bodymodels"
@@ -19,11 +20,10 @@ func GetUsers(db *db.DB) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
 			return
 		}
-
 		c.JSON(http.StatusOK, val)
 	}
 }
-func AddUser(db *db.DB) gin.HandlerFunc {
+func AddUser(db *db.DB, EKM *security.EmailTokenMap) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user bodymodels.AddUserMod
 
@@ -37,6 +37,8 @@ func AddUser(db *db.DB) gin.HandlerFunc {
 			fmt.Println(err)
 			fmt.Println(is_used)
 		}
+
+		fmt.Println(EKM.Keys)
 
 		fmt.Print("is used : ")
 		fmt.Println(is_used)
@@ -52,10 +54,38 @@ func AddUser(db *db.DB) gin.HandlerFunc {
 			return
 
 		}
-
+		if !EKM.ValidateEmail(user.Key, user.Email) {
+			c.JSON(http.StatusConflict, gin.H{"error": "Wrong validation key"})
+		}
 		db.AddUser(user.Name, user.Email, user.Password)
-
 		c.JSON(http.StatusOK, user)
+	}
+}
+
+func RequestEmailKey(e email.Email, EKM *security.EmailTokenMap) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var msg bodymodels.RequestEmailKeyMod
+		if err := c.ShouldBindJSON(&msg); err != nil {
+
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			helper.CustomError(err.Error())
+			return
+		}
+		key, err := helper.GenerateKey(6)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"errorInKeyGenerator": err.Error()})
+			helper.CustomError(err.Error())
+			return
+		}
+		if EKM.Keys == nil {
+			EKM.Keys = make(map[string]string, 0)
+		}
+
+		EKM.Keys[key] = msg.Email
+
+		fmt.Println(EKM.Keys)
+		e.SendEmail("<p> your key ist </p> <h2>"+key+"</h2>", "Email varification", msg.Email)
+		c.JSON(http.StatusOK, gin.H{"message": "email send", "email": msg.Email})
 	}
 }
 
@@ -64,7 +94,6 @@ func RequestSessionToken(db *db.DB, TM *security.TokenMap) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		var userLogin bodymodels.RequestSessionTokenMod
-
 		if err := c.ShouldBindJSON(&userLogin); err != nil {
 
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -88,6 +117,11 @@ func RequestSessionToken(db *db.DB, TM *security.TokenMap) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 			return
 		}
+
+		//!JUST FOR TESTING
+		c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
+		c.Header("Access-Control-Allow-Credentials", "true")
+
 		c.SetCookie("token", token, 3600, "/", "", false, false)
 
 		c.JSON(http.StatusOK, gin.H{"message": "Login successful"})

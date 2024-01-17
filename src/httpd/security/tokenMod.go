@@ -29,3 +29,15 @@ func (tm *TokenMap) AddUserByUsername(user *UserToken) {
 	tm.TOKENTOINDEX[user.TOKEN] = user
 	tm.USERINDEX[user.USERNAME] = user
 }
+
+type EmailTokenMap struct {
+	Keys map[string]string
+}
+
+func (EKM *EmailTokenMap) ValidateEmail(key string, email string) bool {
+	if EKM.Keys[key] == email {
+		delete(EKM.Keys, key)
+		return true
+	}
+	return false
+}
