@@ -40,7 +40,7 @@ func Init(DB *db.DB, TM *security.TokenMap, E email.Email, EKM *security.EmailTo
 	// * -- POST
 	r.POST("/addUser", handler.AddUser(DB, EKM))
 	r.POST("/reqSessionToken", handler.RequestSessionToken(DB, TM))
-	r.POST("/reqEmailKey", handler.RequestEmailKey(E, EKM))
+	r.POST("/reqEmailKey", handler.RequestEmailKey(E, EKM, DB))
 
 	return Server{
 		engine: r,

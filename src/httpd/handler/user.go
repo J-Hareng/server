@@ -56,14 +56,16 @@ func AddUser(db *db.DB, EKM *security.EmailTokenMap) gin.HandlerFunc {
 		}
 		if !EKM.ValidateEmail(user.Key, user.Email) {
 			c.JSON(http.StatusConflict, gin.H{"error": "Wrong validation key"})
+			return
 		}
 		db.AddUser(user.Name, user.Email, user.Password)
 		c.JSON(http.StatusOK, user)
 	}
 }
 
-func RequestEmailKey(e email.Email, EKM *security.EmailTokenMap) gin.HandlerFunc {
+func RequestEmailKey(e email.Email, EKM *security.EmailTokenMap, db *db.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		var msg bodymodels.RequestEmailKeyMod
 		if err := c.ShouldBindJSON(&msg); err != nil {
 
@@ -71,6 +73,17 @@ func RequestEmailKey(e email.Email, EKM *security.EmailTokenMap) gin.HandlerFunc
 			helper.CustomError(err.Error())
 			return
 		}
+		is_used, err := db.AvalabileEmail(msg.Email)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error loading db"})
+			return
+		}
+
+		if is_used {
+			c.JSON(http.StatusConflict, gin.H{"error": "Email already used"})
+			return
+		}
+
 		key, err := helper.GenerateKey(6)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"errorInKeyGenerator": err.Error()})
@@ -118,18 +131,11 @@ func RequestSessionToken(db *db.DB, TM *security.TokenMap) gin.HandlerFunc {
 			return
 		}
 
-<<<<<<< Updated upstream
 		//!JUST FOR TESTING
 		c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
 		c.Header("Access-Control-Allow-Credentials", "true")
 
-		c.SetCookie("token", token, 3600, "/", "", false, false)
-=======
-		c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
-		c.Header("Access-Control-Allow-Credentials", "true")
-
 		c.SetCookie("token", token, 3600, "/", "", false, true)
->>>>>>> Stashed changes
 
 		c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 

@@ -25,6 +25,7 @@ func GeneratEmail() Email {
 func (e *Email) SendEmail(text string, sub string, email string) (helper.Status, error) {
 	m := gomail.NewMessage()
 
+	fmt.Println(email)
 	// Set E-Mail sender
 	m.SetHeader("From", e.EMAIL)
 
