@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	email "server/src/api/Email"
 	"server/src/api/db"
 	"server/src/helper"
@@ -16,11 +15,11 @@ func main() {
 	if err != nil {
 		helper.CustomError(err.Error())
 	}
+	
+	
 	EKM := security.EmailTokenMap{}
 	E := email.GeneratEmail()
-	TM := security.TokenMap{}
-
-	fmt.Print(DB) //! just for testing
+	TM := security.TokenMap{ }
 
 	s := httpd.Init(DB, &TM, E, &EKM)
 

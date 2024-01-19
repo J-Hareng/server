@@ -28,7 +28,7 @@ func Init(DB *db.DB, TM *security.TokenMap, E email.Email, EKM *security.EmailTo
 
 	// * WEB
 	r.Use(static.Serve("/", static.LocalFile("client", true)))
-
+	r.Use(static.Serve("/MainPage", static.LocalFile("luna-main-page-dev/browser", true)))
 	// r.GET("/", handler.TestGet())
 
 	// * User

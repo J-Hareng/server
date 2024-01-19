@@ -132,8 +132,8 @@ func RequestSessionToken(db *db.DB, TM *security.TokenMap) gin.HandlerFunc {
 		}
 
 		//!JUST FOR TESTING
-		c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
-		c.Header("Access-Control-Allow-Credentials", "true")
+		// c.Header("Access-Control-Allow-Origin", "http://localhost:4200") // Specify the exact origin
+		// c.Header("Access-Control-Allow-Credentials", "true")
 
 		c.SetCookie("token", token, 3600, "/", "", false, true)
 
